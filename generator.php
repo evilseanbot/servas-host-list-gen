@@ -10,10 +10,10 @@ include "printkeypeople.php";
 include "testing.php";
 include "toc.php";
 
-// Switch these security measures around when uploading it to the public side
-
 include "passwordfile.php";
 include "hostlistgenfunctions.php";
+
+// Switch these security measures around when uploading it to the public side
 
 session_start(); 
 //authUser($_SESSION[User]);
@@ -21,92 +21,15 @@ session_start();
 startProfileRecord("all");
 startProfileRecord("sql");
 
-//$peopleQuery = file_get_contents("sql/peopleQuery.sql", true);
-//$peopleResult = pg_query ($peopleQuery);
+$hostResult = pg_query(file_get_contents("sql/hostQuery.sql", true));
+
 
 $peopleResult = pg_query(file_get_contents("sql/peopleQuery.sql", true));
 $langResult = pg_query(file_get_contents("sql/langQuery.sql", true));
-
-/*
-$langQuery = "
-SELECT l.*, lc.*
-FROM acservas.\"S_H_Languages\" l,
-     acservas.\"S_Host\" h,
-	 acservas.\"S_H_LanguageCategories\" lc
-WHERE h.\"HostId\" = l.\"HostId\" AND
-      l.\"LanguageId\" = lc.\"LanguageId\"
-";
-$langResult = pg_query ($langQuery);
-*/
-
-$emailQuery = "
-SELECT e.*, ed.*
-FROM acservas.\"S_Emails\" e,
-     acservas.\"S_Email_CategoryDefinitions\" ed
-WHERE e.\"EmailCategoryId\" = ed.\"EmailCategoryId\" 
-";
-$emailResult = pg_query ($emailQuery);
-
-$phoneQuery = "
-SELECT p.*, pd.*
-FROM acservas.\"S_Phones\" p,
-     acservas.\"S_Phone_CategoryDefinitions\" pd
-WHERE p.\"PhoneCategoryId\" = pd.\"PhoneCategoryId\" 
-";
-$phoneResult = pg_query ($phoneQuery);
-
-
-$petQuery = "
-SELECT p.*, pc.*
-FROM acservas.\"S_H_Pets\" p,
-     acservas.\"S_H_PetCategories\" pc
-WHERE p.\"PetId\" = pc.\"PetId\" 
-";
-$petResult = pg_query ($petQuery);
-
-$disabQuery = "
-SELECT d.*, dc.*
-FROM acservas.\"S_H_Disabilities\" d,
-     acservas.\"S_H_DisabilityCategories\" dc
-WHERE d.\"DisabilityId\" = dc.\"DisabilityId\" 
-";
-$disabResult = pg_query ($disabQuery);
-
-/*
-$stateInput = $_GET["State"];
-if (strlen($stateInput) == 2) {
-   	
-} else {
-    $stateInput = "";	
-}
-*/
-
-/*$regionZipQuery = "
-SELECT *
-FROM acservas.\"zipcounty\" zc, acservas.\"countyregion\" cr, acservas.regions r
-WHERE cr.\"countyname\" = zc.\"county\" AND cr.\"regionid\" = r.\"regionid\"
-";
-$regionZipResult = pg_query ($regionZipQuery);*/
-
-
-$hostQuery = "
-SELECT *, to_char(h.\"NotAvailDateFrom\", 'MM/DD/YYYY') as nadff, 
-          to_char(h.\"NotAvailDateTo\", 'MM/DD/YYYY') as nadtf
-FROM acservas.\"S_Address\" a 
-    LEFT JOIN acservas.zipcounty zc ON zc.zip = substring(a.\"Zip\" from 1 for 5)
-	LEFT JOIN acservas.countyregion cr ON zc.county = cr.countyname AND zc.state = cr.state
-	LEFT JOIN acservas.regions r ON r.regionid = cr.regionid,
-    acservas.\"S_Person\" p,
-	acservas.\"S_Host\" h,
-    acservas.full_state_names fn
-WHERE p.\"PersonId\" = a.\"PersonId\" AND
-      p.\"PersonId\" = h.\"PersonId\" AND
-      a.\"State\" = fn.state_abv AND
-	  a.\"AddressCategoryId\" in ('1', '4') AND 
-	  h.\"HostStatus\" in ('A', '') AND
-	  p.\"ActiveMember\" = 'TRUE'
-ORDER BY state_full_name, regionname, county, \"City\", \"Zip\"";
-$hostResult = pg_query ($hostQuery);
+$emailResult = pg_query(file_get_contents("sql/emailQuery.sql", true));
+$phoneResult = pg_query(file_get_contents("sql/phoneQuery.sql", true));
+$petResult = pg_query(file_get_contents("sql/petQuery.sql", true));
+$disabResult = pg_query(file_get_contents("sql/disabQuery.sql", true));
 
 $people = pg_fetch_all ($peopleResult);
 $langs = pg_fetch_all ($langResult);
@@ -114,7 +37,6 @@ $emails = pg_fetch_all ($emailResult);
 $phones = pg_fetch_all($phoneResult);
 $pets = pg_fetch_all ($petResult);
 $disabs = pg_fetch_all ($disabResult);
-//$zips = pg_fetch_all ($regionZipResult);
 
 endProfileRecord("sql");
 

@@ -148,4 +148,8 @@ function removeSpaceHogs($string) {
 	return $string;
 }
 
+function sortedArrayFromSQL($queryName, $id) {
+    return getArraySortedById(pg_fetch_all(pg_query(file_get_contents("sql/" . $queryName, true))), $id);
+}
+
 ?>
