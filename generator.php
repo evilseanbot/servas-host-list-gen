@@ -25,20 +25,24 @@ $hostResult = pg_query(file_get_contents("sql/hostQuery.sql", true));
 
 
 $peopleResult = pg_query(file_get_contents("sql/peopleQuery.sql", true));
-$langResult = pg_query(file_get_contents("sql/langQuery.sql", true));
-$emailResult = pg_query(file_get_contents("sql/emailQuery.sql", true));
-$phoneResult = pg_query(file_get_contents("sql/phoneQuery.sql", true));
-$petResult = pg_query(file_get_contents("sql/petQuery.sql", true));
-$disabResult = pg_query(file_get_contents("sql/disabQuery.sql", true));
 
 $people = pg_fetch_all ($peopleResult);
-$langs = pg_fetch_all ($langResult);
-$emails = pg_fetch_all ($emailResult);
-$phones = pg_fetch_all($phoneResult);
-$pets = pg_fetch_all ($petResult);
-$disabs = pg_fetch_all ($disabResult);
+
+startProfileRecord("getSortedArray");
+//$regionsByZip = getArraySortedById($zips, "zip");
+$peopleByPersonId = getArraySortedById($people, "PersonId");
+$peopleByRelateId = getArraySortedById($people, "r_person_id");
+endProfileRecord("getSortedArray");
+
+$disabsById = sortedArrayFromSQL("disabQuery.sql", "HostId");
+$petsById = sortedArrayFromSQL("petQuery.sql", "HostId");
+$phonesById = sortedArrayFromSQL("phoneQuery.sql", "HostId");
+$emailsById = sortedArrayFromSQL("emailQuery.sql", "HostId");
+$langsById = sortedArrayFromSQL("langQuery.sql", "HostId");
+
 
 endProfileRecord("sql");
+startProfileRecord("hostPrinting");
 
 $pdf = new PDF_TOC();
 
@@ -70,19 +74,6 @@ $pageNoOnLeft = false;
 $firstEntry = true;
 $oldState = "";
 $newState = "";
-
-startProfileRecord("getSortedArray");
-$emailsById = getArraySortedById($emails, "PersonId");
-$phonesById = getArraySortedById($phones, "PersonId");
-$petsById = getArraySortedById($pets, "HostId");
-$langsById = getArraySortedById($langs, "HostId");
-$disabsById = getArraySortedById($disabs, "HostId");
-//$regionsByZip = getArraySortedById($zips, "zip");
-$peopleByPersonId = getArraySortedById($people, "PersonId");
-$peopleByRelateId = getArraySortedById($people, "r_person_id");
-endProfileRecord("getSortedArray");
-
-startProfileRecord("hostPrinting");
 
 $peopleIndex = array();
 $cityIndex = array();
