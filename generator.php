@@ -9,7 +9,6 @@ include "abvNations.php";
 include "printkeypeople.php";
 include "testing.php";
 include "toc.php";
-
 include "passwordfile.php";
 include "hostlistgenfunctions.php";
 
@@ -30,6 +29,7 @@ $peopleByPersonId = getArraySortedById($people, "PersonId");
 $peopleByRelateId = getArraySortedById($people, "r_person_id");
 endProfileRecord("getSortedArray");
 
+//$peopleByPersonId = sortedArrayFromSQL("peopleQuery2.sql", "PersonId");
 $disabsById = sortedArrayFromSQL("disabQuery.sql", "HostId");
 $petsById = sortedArrayFromSQL("petQuery.sql", "HostId");
 $phonesById = sortedArrayFromSQL("phoneQuery.sql", "HostId");
@@ -57,7 +57,6 @@ $blockH = 300;
 $pageW = 170;
 $fontSize = 10;
 $font = "Times";
-
 
 $pageNo = 0;
 $pageNoOnLeft = false;
@@ -118,245 +117,7 @@ $pdf->_numPageNum=17;
 $pdf->startPageNums();
 	
 for ($i = 0; $hostRow = pg_fetch_array($hostResult); $i++) {	
-
- 
-	if ($hostRow["SleepingBagId"] == 2) {
-		$SleepingBagAbv = "SBA ";  
-	} elseif ($hostRow["SleepingBagId"] == 3) {
-		$SleepingBagAbv = "SBN ";  
-	}  else {
-		$SleepingBagAbv = ""; 
-	}
-	
-	if ($hostRow["SmokingId"] == 1) {
-		$SmokingAbv = "HSI ";  
-	} elseif ($hostRow["SmokingId"] == 2) {
-		$SmokingAbv = "SOK ";  
-	} elseif ($hostRow["SmokingId"] == 3) {
-		$SmokingAbv = "NIS "; 
-	} elseif ($hostRow["SmokingId"] == 4) {
-		$SmokingAbv = "NSA ";
-	}  else {
-		$SmokingAbv = ""; 
-	}
-	
-	if ($hostRow["WantsTravelers"] == "t") {
-	    $WantsMoreAbv = "WMT "; 
-	} else {
-	    $WantsMoreAbv = "";		
-	}
-	
-	if ($hostRow["HostTypeId"] == 1) {
-		$HostTypeAbv = "2n";
-	} else if ($hostRow["HostTypeId"] == 2) {
-	    $HostTypeAbv = "1d";	
-	} else if ($hostRow["HosttypeId"] == 3) {
-	    $HostTypeAbv = "NOT HOSTING";	
-	} else {
-		$HostTypeAbv = "";
-	}
-	
-	if ($hostRow["FamiliesWelcome"] == 't') {
-	    $familyAbv = " (FAM)";			 
-	} else {
-	    $familyAbv = "";
-	}
-
-	
-	if (!is_null($hostRow["regionname"])) {
-	    $stateOrRegion = $hostRow["regionname"] . " (" . $hostRow["State"] . ")";
-	} else {
-	    $stateOrRegion = $hostRow["state_full_name"];	
-	}
-	
-    $state = $hostRow["state_full_name"];
-	
-	$newStateOrRegion = $stateOrRegion;
-	$newState = $state;
-	
-	if ($firstEntry) {
-	    newHostPage();
-		newBlock();
-		$firstEntry = false;
-		$pdf->TOC_Entry("Host List", 0);
-	}
-	
-	if (($newStateOrRegion != $oldStateOrRegion) && ($blocksDisplayed != 0)){
-	    newHostPage();
-		newBlock();	
-     }	
-	
-	if ($newState != $oldState) {
-		$pdf->TOC_Entry($newState, 1);	
-	}
-	
-	if ($newStateOrRegion != $oldStateOrRegion) {
-		if (!is_null($hostRow["regionname"])) {
-    		$pdf->TOC_Entry($newStateOrRegion, 2);
-		}
-	}
-
-	   // Count up blocks displayed
-   if ($blocksDisplayed == 3) {	
-		newHostPage();
-	} 
-	newBlock();
-	$blocksDisplayed++;
-	
-	
-	// Assign a page no to this host's peopleIndex entry.
-	$peopleIndex[$hostRow["HostId"]] = array();
-	$peopleIndex[$hostRow["HostId"]]["LastName"] = $hostRow["LastName"];
-	$peopleIndex[$hostRow["HostId"]]["FirstName"] = $hostRow["FirstName"];	
-	$peopleIndex[$hostRow["HostId"]]["IndexNo"] = $pdf->_numPageNum;
-    
-	// Assign a page no to this host's peopleIndex entry.
-	$cityIndex[$hostRow["HostId"]] = array();
-	$cityIndex[$hostRow["HostId"]]["City"] = $hostRow["City"];
-	$cityIndex[$hostRow["HostId"]]["State"] = $hostRow["State"];	
-	$cityIndex[$hostRow["HostId"]]["IndexNo"] = $pdf->_numPageNum;
-	
- 
-    startProfileRecord("col1");
-	// Print column 1.
-	
-	$pdf->Cell($colW,5,$hostRow["State"] . " " . $hostRow["Zip"], 0, 1);
-    $pdf->Cell($colW,5,$hostRow["City"], 0, 1);
-	
-    if ($hostRow["PrivateAddress"] == "t") {
-	    $pdf->Cell($colW, 5, "*PRIVATE ADDRESS*", 0, 1);	
-	} else {
-	    $pdf->Cell($colW, 5, $hostRow["Address1"], 0, 1);	    	
-	}
-	
-    $pdf->MultiCell($colW-10,5,$hostRow["RefLocationMiles"] . " " . $hostRow["RefLocationCardinalPoints"] . " from " . $hostRow["RefLocationDescription"], 0, 1);
-	
-	$hostPets = $petsById[$hostRow["HostId"]];
-	
-    $pdf->Cell($colW, 5, "PETS: " . getHostPetsString($hostPets), 0, 1);
-	
-	$hostDisabs = $disabsById[$hostRow["HostId"]];
-    $pdf->Cell($colW, 5, "DISAB: " . getHostDisabsString($hostDisabs), 0, 1);	
-	
-    $pdf->Cell($colW, 5, $hostRow["MaxGuests"] . "G" . $familyAbv, 0, 1);
-	
-	$pdf->Cell($colW, 5, $HostTypeAbv . "(+" . $hostRow["ExtendedDays"] . "d): " . $hostRow["AdvNoticeRequired"] . "dn / " . $hostRow["AdvNoticeRecommend"] . "da", 0, 1);
-    $pdf->Cell($colW, 5, $SleepingBagAbv . $WantsMoreAbv . $SmokingAbv, 0, 1);
-	
-	if (!is_null($hostRow["NotAvailDateFrom"])) {
-		
-		$today = strtotime(date("Y-m-d"));
-		$toDate = strtotime($hostRow["NotAvailDateTo"]);
-		
-		if ($today < $toDate) {
-	        $pdf->Cell($colW, 5, "NA: " . $hostRow["nadff"] . "-" . $hostRow["nadtf"], 0, 1);	
-		}
-	}
-	
-	endProfileRecord("col1");
-	
-	startProfileRecord("col2");
-	// Print column 2.
-	newCol();
-	
-	if (array_key_exists($hostRow["PersonId"], $peopleByPersonId) ){
-	    $mainHost = $peopleByPersonId[$hostRow["PersonId"]][0];
-	    $pdf->SetFont($font,'b',$fontSize);	
-	    $pdf->SetX($currentColX);	
-	    $pdf->Cell($colW, 5, $mainHost["FirstName"] . " " . $mainHost["LastName"] . " (" . $mainHost["p_age"] .", " . $mainHost["Gender"] .")", 0, 1);	
-	    $pdf->SetX($currentColX);	
-        $pdf->MultiCell($colW, 5, $mainHost["Occupation"], 0, 1);		
-	}
-
-    if (array_key_exists($hostRow["PersonId"], $peopleByRelateId) ) {
-		$hostPeople = $peopleByRelateId[$hostRow["PersonId"]];
-		
-		
-		$pdf->SetFont($font, '', $fontSize);
-			
-		for ($i = 0; $i < min(sizeof($hostPeople), 3); $i++) {	
-			
-			$pdf->SetX($currentColX);	
-			$personString = $hostPeople[$i]["FirstName"] . " " . $hostPeople[$i]["LastName"] . " (" . $hostPeople[$i]["p_age"] .", " . $hostPeople[$i]["Gender"] .")";
-		    
-			if ( ($hostPeople[$i]["Occupation"] != "") || ($hostPeople[$i]["RelationshipDefinition"] != "") ) {
-	    		$personString .= " " . limitedString($hostPeople[$i]["Occupation"] , 43). " (" . $hostPeople[$i]["RelationshipDefinition"] .")";			
-			}
-			
-			
-			$pdf->MultiCell($colW, 5, $personString, 0, 1);	
-			$pdf->SetX($currentColX);	
-				
-		}
-		
-	}
-	
-	$pdf->SetFont($font, '', $fontSize);
-    $pdf->SetX($currentColX);
-	$pdf->MultiCell($colW, 5, "Mem: " . limitedString($hostRow["Memberships"], 150), 0, 1);
-    
-	endProfileRecord("col2");
-	
-	startProfileRecord("col3");
-
-	// Print column 3.
-	
-	$hostLangs = $langsById[$hostRow["HostId"]];
-	$hostLangString = getHostLangString($hostLangs);
-	
-	$hostEmails = $emailsById[$hostRow["PersonId"]];
-	
-    newCol();
-	$pdf->SetX($currentColX);	
-	if (sizeof($hostLangs) != 0) {
-	    $pdf->Cell($colW, 5, "Lang: " . $hostLangString, 0, 1);	
-	}
-
-    for ($i = 0; $i < sizeof($hostEmails); $i++) {
-		$pdf->SetX($currentColX);		
-		
-		if ($hostEmails[$i]["Private"] == "t") {							
-		} else { 
-		    $pdf->Cell($colW, 5, $hostEmails[$i]["Email"] . "(". $hostEmails[$i]["EmailCategory"].")", 0, 1);	
-		}
-	}
-
-	$hostPhones = $phonesById[$hostRow["PersonId"]];	
-
-    for ($i = 0; $i < sizeof($hostPhones); $i++) {
-		$pdf->SetX($currentColX);		
-		
-		if ($hostPhones[$i]["Private"] == "t") {							
-		} else { 
-		    $pdf->Cell($colW, 5, "(".$hostPhones[$i]["AreaCode"].")" . $hostPhones[$i]["Phone"] . "(". $hostPhones[$i]["PhoneCategory"].")", 0, 1);	
-		}
-	}
-	
-	$pdf->SetX($currentColX);
-    $pdf->MultiCell($colW, 5, "LV: " . limitedString(removeSpaceHogs(abvNations($hostRow["LivedIn"])), 150), 0, 1);
-	$pdf->SetX($currentColX);
-    $pdf->MultiCell($colW, 5, "TV: " . limitedString(removeSpaceHogs(abvNations($hostRow["TraveledIn"])), 150), 0, 1);
-	
-	endProfileRecord("col3");
-	
-	$notesModified = limitedString(removeSpaceHogs($hostRow["NotesForGuests"]), 600);
-	$areaGoodiesModified = limitedString(removeSpaceHogs($hostRow["AreaGoodies"]), 600);
-	$interestsModified = limitedString(removeSpaceHogs($hostRow["Interests"]), 600);
-	
-	
-	startProfileRecord("bottomCol");
-    // Display the long story.
-    $pdf->SetFont($font,'I',$fontSize);
-    $pdf->setY($blockOriginY+60);
-	$pdf->SetX(5);
-	$pdf->MultiCell($colW*2.85, 4, $notesModified . " | Why: " . $areaGoodiesModified . " | Int: " . $interestsModified, 0, 1);	
-	
-    $pdf->SetFont($font,'',$fontSize);
-	endProfileRecord("bottomCol");
-
- 
-		$oldStateOrRegion = $stateOrRegion;
-		$oldState = $state;
+    printHostEntry($hostRow, $peopleByPersonId);
 }
 
 // print out the people index page:
@@ -373,7 +134,6 @@ array_multisort($LastName, SORT_ASC, $FirstName, SORT_ASC, $peopleIndex);
 $entriesInCol = 0;
 $currentX = 0;
 $currentLineY = 0;
-
 
 foreach ($peopleIndex as $peopleIndexEntry) {
 	$pdf->SetX($currentX);
@@ -467,5 +227,4 @@ endProfileRecord("all");
 
 $pdf->insertTOC(5, 24, 12);
 $pdf->Output();
-
 ?>
