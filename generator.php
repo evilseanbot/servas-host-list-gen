@@ -1,5 +1,7 @@
 <?php
 
+error_reporting(E_ALL);
+
 require('../../../../cl/fpdf/fpdf.php');
 require('../../FPDI/fpdi.php');
 include "../../functions/passprotect.php";
@@ -8,14 +10,13 @@ include "printkeypeople.php";
 include "testing.php";
 include "toc.php";
 
-// Switch these security measures around when uploading it to host list.
+// Switch these security measures around when uploading it to the public side
 
-include "passwordfile.php"
+
+include "passwordfile.php";
 
 session_start(); 
-authUser($_SESSION[User]);
-
-error_reporting(E_ALL);
+//authUser($_SESSION[User]);
 
 function authUser($user) {
 	$QueryActiveApproved = "
@@ -37,6 +38,7 @@ function authUser($user) {
 		exit();
 	}    
 }
+
 
 function newBlock() {
 	global $pdf, $blockOriginY, $currentColX, $colW, $blockH, $pageW;
@@ -171,6 +173,8 @@ function removeSpaceHogs($string) {
 startProfileRecord("all");
 startProfileRecord("sql");
 
+
+
 $peopleQuery = "
 SELECT p.*, r.\"PersonId\" as r_person_id, date_part('year',age(p.\"BirthYear\")) as p_age, rd.\"RelationshipDefinition\"
 FROM 
@@ -241,6 +245,7 @@ FROM acservas.\"zipcounty\" zc, acservas.\"countyregion\" cr, acservas.regions r
 WHERE cr.\"countyname\" = zc.\"county\" AND cr.\"regionid\" = r.\"regionid\"
 ";
 $regionZipResult = pg_query ($regionZipQuery);*/
+
 
 $hostQuery = "
 SELECT *, to_char(h.\"NotAvailDateFrom\", 'MM/DD/YYYY') as nadff, 
@@ -594,6 +599,7 @@ for ($i = 0; $hostRow = pg_fetch_array($hostResult); $i++) {
 	//$areaGoodiesModified = str_replace("\t", " ", $areaGoodiesModified);
 	//$areaGoodiesModified = preg_replace('/\t+/', '', $areaGoodiesModified);
 	$areaGoodiesModified = preg_replace("/\s+/", " ", $areaGoodiesModified);*/
+
 	
 	$notesModified = limitedString(removeSpaceHogs($hostRow["NotesForGuests"]), 600);
 	$areaGoodiesModified = limitedString(removeSpaceHogs($hostRow["AreaGoodies"]), 600);
@@ -610,6 +616,8 @@ for ($i = 0; $hostRow = pg_fetch_array($hostResult); $i++) {
 	$pdf->MultiCell($colW*2.75, 4, "Why: " . $areaGoodiesModified, 0, 1);	
 	$pdf->SetX(5);
 	$pdf->MultiCell($colW*2.75, 4, "Int: " . $interestsModified, 0, 1);*/
+
+	
     $pdf->SetFont($font,'',$fontSize);
 	endProfileRecord("bottomCol");
 
