@@ -159,48 +159,6 @@ function sortedArrayFromSQL($queryName, $id) {
 function printHostEntry($hostRow, $peopleByPersonId) {
     global $firstEntry, $pdf, $oldStateOrRegion, $oldState, $blocksDisplayed, $peopleIndex, $cityIndex, $colW, $font, $currentColX, $fontSize, $peopleByRelateId, $blockOriginY;
 
- 	if ($hostRow["SleepingBagId"] == 2) {
-		$SleepingBagAbv = "SBA ";  
-	} elseif ($hostRow["SleepingBagId"] == 3) {
-		$SleepingBagAbv = "SBN ";  
-	}  else {
-		$SleepingBagAbv = ""; 
-	}
-	
-	if ($hostRow["SmokingId"] == 1) {
-		$SmokingAbv = "HSI ";  
-	} elseif ($hostRow["SmokingId"] == 2) {
-		$SmokingAbv = "SOK ";  
-	} elseif ($hostRow["SmokingId"] == 3) {
-		$SmokingAbv = "NIS "; 
-	} elseif ($hostRow["SmokingId"] == 4) {
-		$SmokingAbv = "NSA ";
-	}  else {
-		$SmokingAbv = ""; 
-	}
-	
-	if ($hostRow["WantsTravelers"] == "t") {
-	    $WantsMoreAbv = "WMT "; 
-	} else {
-	    $WantsMoreAbv = "";		
-	}
-	
-	if ($hostRow["HostTypeId"] == 1) {
-		$HostTypeAbv = "2n";
-	} else if ($hostRow["HostTypeId"] == 2) {
-	    $HostTypeAbv = "1d";	
-	} else if ($hostRow["HosttypeId"] == 3) {
-	    $HostTypeAbv = "NOT HOSTING";	
-	} else {
-		$HostTypeAbv = "";
-	}
-	
-	if ($hostRow["FamiliesWelcome"] == 't') {
-	    $familyAbv = " (FAM)";			 
-	} else {
-	    $familyAbv = "";
-	}
-
 	
 	if (!is_null($hostRow["regionname"])) {
 	    $stateOrRegion = $hostRow["regionname"] . " (" . $hostRow["State"] . ")";
@@ -256,107 +214,10 @@ function printHostEntry($hostRow, $peopleByPersonId) {
 	$cityIndex[$hostRow["HostId"]]["IndexNo"] = $pdf->_numPageNum;
 	
     printHostEntryCol1($hostRow);
-
-	startProfileRecord("col2");
-	// Print column 2.
-	newCol();
-
-	if (array_key_exists($hostRow["PersonId"], $peopleByPersonId) ){
-	    
-	    $mainHost = $peopleByPersonId[$hostRow["PersonId"]][0];
-	    $pdf->SetFont($font,'b',$fontSize);	
-	    $pdf->SetX($currentColX);	
-	    $pdf->Cell($colW, 5, $mainHost["FirstName"] . " " . $mainHost["LastName"] . " (" . $mainHost["p_age"] .", " . $mainHost["Gender"] .")", 0, 1);	
-	    $pdf->SetX($currentColX);	
-        $pdf->MultiCell($colW, 5, $mainHost["Occupation"], 0, 1);		
-        
-	}
-    
-    if (array_key_exists($hostRow["PersonId"], $peopleByRelateId) ) {
-		$hostPeople = $peopleByRelateId[$hostRow["PersonId"]];
-		
-		
-		$pdf->SetFont($font, '', $fontSize);
-			
-		for ($i = 0; $i < min(sizeof($hostPeople), 3); $i++) {	
-			
-			$pdf->SetX($currentColX);	
-			$personString = $hostPeople[$i]["FirstName"] . " " . $hostPeople[$i]["LastName"] . " (" . $hostPeople[$i]["p_age"] .", " . $hostPeople[$i]["Gender"] .")";
-		    
-			if ( ($hostPeople[$i]["Occupation"] != "") || ($hostPeople[$i]["RelationshipDefinition"] != "") ) {
-	    		$personString .= " " . limitedString($hostPeople[$i]["Occupation"] , 43). " (" . $hostPeople[$i]["RelationshipDefinition"] .")";			
-			}
-			
-			
-			$pdf->MultiCell($colW, 5, $personString, 0, 1);	
-			$pdf->SetX($currentColX);	
-				
-		}
-		
-	}
+    printHostEntryCol2($hostRow, $peopleByPersonId);
+    printHostEntryCol3($hostRow);
+	printHostEntryBottomCol($hostRow);
 	
-	$pdf->SetFont($font, '', $fontSize);
-    $pdf->SetX($currentColX);
-	$pdf->MultiCell($colW, 5, "Mem: " . limitedString($hostRow["Memberships"], 150), 0, 1);
-    
-	endProfileRecord("col2");
-	
-	startProfileRecord("col3");
-
-	// Print column 3.
-	
-	$hostLangs = $langsById[$hostRow["HostId"]];
-	$hostLangString = getHostLangString($hostLangs);
-	
-	$hostEmails = $emailsById[$hostRow["PersonId"]];
-	
-    newCol();
-	$pdf->SetX($currentColX);	
-	if (sizeof($hostLangs) != 0) {
-	    $pdf->Cell($colW, 5, "Lang: " . $hostLangString, 0, 1);	
-	}
-
-    for ($i = 0; $i < sizeof($hostEmails); $i++) {
-		$pdf->SetX($currentColX);		
-		
-		if ($hostEmails[$i]["Private"] == "t") {							
-		} else { 
-		    $pdf->Cell($colW, 5, $hostEmails[$i]["Email"] . "(". $hostEmails[$i]["EmailCategory"].")", 0, 1);	
-		}
-	}
-
-	$hostPhones = $phonesById[$hostRow["PersonId"]];	
-
-    for ($i = 0; $i < sizeof($hostPhones); $i++) {
-		$pdf->SetX($currentColX);		
-		
-		if ($hostPhones[$i]["Private"] == "t") {							
-		} else { 
-		    $pdf->Cell($colW, 5, "(".$hostPhones[$i]["AreaCode"].")" . $hostPhones[$i]["Phone"] . "(". $hostPhones[$i]["PhoneCategory"].")", 0, 1);	
-		}
-	}
-	
-	$pdf->SetX($currentColX);
-    $pdf->MultiCell($colW, 5, "LV: " . limitedString(removeSpaceHogs(abvNations($hostRow["LivedIn"])), 150), 0, 1);
-	$pdf->SetX($currentColX);
-    $pdf->MultiCell($colW, 5, "TV: " . limitedString(removeSpaceHogs(abvNations($hostRow["TraveledIn"])), 150), 0, 1);
-	
-	endProfileRecord("col3");
-	
-	$notesModified = limitedString(removeSpaceHogs($hostRow["NotesForGuests"]), 600);
-	$areaGoodiesModified = limitedString(removeSpaceHogs($hostRow["AreaGoodies"]), 600);
-	$interestsModified = limitedString(removeSpaceHogs($hostRow["Interests"]), 600);
-	
-	
-	startProfileRecord("bottomCol");
-    // Display the long story.
-    $pdf->SetFont($font,'I',$fontSize);
-    $pdf->setY($blockOriginY+60);
-	$pdf->SetX(5);
-	$pdf->MultiCell($colW*2.85, 4, $notesModified . " | Why: " . $areaGoodiesModified . " | Int: " . $interestsModified, 0, 1);	
-	
-    $pdf->SetFont($font,'',$fontSize);
-	endProfileRecord("bottomCol");
 
 	$oldStateOrRegion = $stateOrRegion;
 	$oldState = $state;
@@ -364,7 +225,50 @@ function printHostEntry($hostRow, $peopleByPersonId) {
 }
 
 function printHostEntryCol1($hostRow) {
-    global $pdf, $colW, $SleepingBagAbv, $WantsMoreAbv, $SmokingAbv;
+    global $pdf, $colW;
+
+ 	if ($hostRow["SleepingBagId"] == 2) {
+		$SleepingBagAbv = "SBA ";  
+	} elseif ($hostRow["SleepingBagId"] == 3) {
+		$SleepingBagAbv = "SBN ";  
+	}  else {
+		$SleepingBagAbv = ""; 
+	}
+	
+	if ($hostRow["SmokingId"] == 1) {
+		$SmokingAbv = "HSI ";  
+	} elseif ($hostRow["SmokingId"] == 2) {
+		$SmokingAbv = "SOK ";  
+	} elseif ($hostRow["SmokingId"] == 3) {
+		$SmokingAbv = "NIS "; 
+	} elseif ($hostRow["SmokingId"] == 4) {
+		$SmokingAbv = "NSA ";
+	}  else {
+		$SmokingAbv = ""; 
+	}
+	
+	if ($hostRow["WantsTravelers"] == "t") {
+	    $WantsMoreAbv = "WMT "; 
+	} else {
+	    $WantsMoreAbv = "";		
+	}
+	
+	if ($hostRow["HostTypeId"] == 1) {
+		$HostTypeAbv = "2n";
+	} else if ($hostRow["HostTypeId"] == 2) {
+	    $HostTypeAbv = "1d";	
+	} else if ($hostRow["HosttypeId"] == 3) {
+	    $HostTypeAbv = "NOT HOSTING";	
+	} else {
+		$HostTypeAbv = "";
+	}
+	
+	if ($hostRow["FamiliesWelcome"] == 't') {
+	    $familyAbv = " (FAM)";			 
+	} else {
+	    $familyAbv = "";
+	}
+
 
     startProfileRecord("col1");
 	// Print column 1.
@@ -406,5 +310,115 @@ function printHostEntryCol1($hostRow) {
 	
 	endProfileRecord("col1");
 
+}
+
+function printHostEntryCol2($hostRow, $peopleByPersonId) {
+	global $peopleByRelateId, $colW, $currentColX, $font, $fontSize, $pdf;
+
+	startProfileRecord("col2");
+	// Print column 2.
+	newCol();
+
+	if (array_key_exists($hostRow["PersonId"], $peopleByPersonId) ){
+	    
+	    $mainHost = $peopleByPersonId[$hostRow["PersonId"]][0];
+	    $pdf->SetFont($font,'b',$fontSize);	
+	    $pdf->SetX($currentColX);	
+	    $pdf->Cell($colW, 5, $mainHost["FirstName"] . " " . $mainHost["LastName"] . " (" . $mainHost["p_age"] .", " . $mainHost["Gender"] .")", 0, 1);	
+	    $pdf->SetX($currentColX);	
+        $pdf->MultiCell($colW, 5, $mainHost["Occupation"], 0, 1);		
+        
+	}
+    
+    if (array_key_exists($hostRow["PersonId"], $peopleByRelateId) ) {
+		$hostPeople = $peopleByRelateId[$hostRow["PersonId"]];
+		
+		
+		$pdf->SetFont($font, '', $fontSize);
+			
+		for ($i = 0; $i < min(sizeof($hostPeople), 3); $i++) {	
+			
+			$pdf->SetX($currentColX);	
+			$personString = $hostPeople[$i]["FirstName"] . " " . $hostPeople[$i]["LastName"] . " (" . $hostPeople[$i]["p_age"] .", " . $hostPeople[$i]["Gender"] .")";
+		    
+			if ( ($hostPeople[$i]["Occupation"] != "") || ($hostPeople[$i]["RelationshipDefinition"] != "") ) {
+	    		$personString .= " " . limitedString($hostPeople[$i]["Occupation"] , 43). " (" . $hostPeople[$i]["RelationshipDefinition"] .")";			
+			}
+			
+			
+			$pdf->MultiCell($colW, 5, $personString, 0, 1);	
+			$pdf->SetX($currentColX);	
+				
+		}
+		
+	}
+	
+	$pdf->SetFont($font, '', $fontSize);
+    $pdf->SetX($currentColX);
+	$pdf->MultiCell($colW, 5, "Mem: " . limitedString($hostRow["Memberships"], 150), 0, 1);	
+	endProfileRecord("col2");
+
+}
+
+function printHostEntryCol3($hostRow) {
+    global $pdf, $emailsById, $langsById, $langsById, $phonesById, $currentColX, $colW;
+
+	startProfileRecord("col3");
+	
+	$hostLangs = $langsById[$hostRow["HostId"]];
+	$hostLangString = getHostLangString($hostLangs);
+	
+	$hostEmails = $emailsById[$hostRow["PersonId"]];
+	
+    newCol();
+	$pdf->SetX($currentColX);	
+	if (sizeof($hostLangs) != 0) {
+	    $pdf->Cell($colW, 5, "Lang: " . $hostLangString, 0, 1);	
+	}
+
+    for ($i = 0; $i < sizeof($hostEmails); $i++) {
+		$pdf->SetX($currentColX);		
+		
+		if ($hostEmails[$i]["Private"] == "t") {							
+		} else { 
+		    $pdf->Cell($colW, 5, $hostEmails[$i]["Email"] . "(". $hostEmails[$i]["EmailCategory"].")", 0, 1);	
+		}
+	}
+
+	$hostPhones = $phonesById[$hostRow["PersonId"]];	
+
+    for ($i = 0; $i < sizeof($hostPhones); $i++) {
+		$pdf->SetX($currentColX);		
+		
+		if ($hostPhones[$i]["Private"] == "t") {							
+		} else { 
+		    $pdf->Cell($colW, 5, "(".$hostPhones[$i]["AreaCode"].")" . $hostPhones[$i]["Phone"] . "(". $hostPhones[$i]["PhoneCategory"].")", 0, 1);	
+		}
+	}
+	
+	$pdf->SetX($currentColX);
+    $pdf->MultiCell($colW, 5, "LV: " . limitedString(removeSpaceHogs(abvNations($hostRow["LivedIn"])), 150), 0, 1);
+	$pdf->SetX($currentColX);
+    $pdf->MultiCell($colW, 5, "TV: " . limitedString(removeSpaceHogs(abvNations($hostRow["TraveledIn"])), 150), 0, 1);
+	
+	endProfileRecord("col3");
+}
+
+function printHostEntryBottomCol($hostRow) {
+    global $font, $fontSize, $blockOriginY, $colW, $pdf;
+
+	$notesModified = limitedString(removeSpaceHogs($hostRow["NotesForGuests"]), 600);
+	$areaGoodiesModified = limitedString(removeSpaceHogs($hostRow["AreaGoodies"]), 600);
+	$interestsModified = limitedString(removeSpaceHogs($hostRow["Interests"]), 600);	
+	
+	startProfileRecord("bottomCol");
+    // Display the long story.
+    $pdf->SetFont($font,'I',$fontSize);
+    $pdf->setY($blockOriginY+60);
+	$pdf->SetX(5);
+	$pdf->MultiCell($colW*2.85, 4, $notesModified . " | Why: " . $areaGoodiesModified . " | Int: " . $interestsModified, 0, 1);	
+	
+    $pdf->SetFont($font,'',$fontSize);
+	endProfileRecord("bottomCol");
 }
 ?>
