@@ -255,48 +255,7 @@ function printHostEntry($hostRow, $peopleByPersonId) {
 	$cityIndex[$hostRow["HostId"]]["State"] = $hostRow["State"];	
 	$cityIndex[$hostRow["HostId"]]["IndexNo"] = $pdf->_numPageNum;
 	
- 
-    startProfileRecord("col1");
-	// Print column 1.
-	
-	$pdf->Cell($colW,5,$hostRow["State"] . " " . $hostRow["Zip"], 0, 1);
-    $pdf->Cell($colW,5,$hostRow["City"], 0, 1);
-	
-    if ($hostRow["PrivateAddress"] == "t") {
-	    $pdf->Cell($colW, 5, "*PRIVATE ADDRESS*", 0, 1);	
-	} else {
-	    $pdf->Cell($colW, 5, $hostRow["Address1"], 0, 1);	    	
-	}
-	
-    $pdf->MultiCell($colW-10,5,$hostRow["RefLocationMiles"] . " " . $hostRow["RefLocationCardinalPoints"] . " from " . $hostRow["RefLocationDescription"], 0, 1);
-	
-	$hostPets = $petsById[$hostRow["HostId"]];
-	
-    $pdf->Cell($colW, 5, "PETS: " . getHostPetsString($hostPets), 0, 1);
-	
-	$hostDisabs = $disabsById[$hostRow["HostId"]];
-    $pdf->Cell($colW, 5, "DISAB: " . getHostDisabsString($hostDisabs), 0, 1);	
-	
-    $pdf->Cell($colW, 5, $hostRow["MaxGuests"] . "G" . $familyAbv, 0, 1);
-	
-	$pdf->Cell($colW, 5, $HostTypeAbv . "(+" . $hostRow["ExtendedDays"] . "d): " . $hostRow["AdvNoticeRequired"] . "dn / " . $hostRow["AdvNoticeRecommend"] . "da", 0, 1);
-    $pdf->Cell($colW, 5, $SleepingBagAbv . $WantsMoreAbv . $SmokingAbv, 0, 1);
-	
-    
-
-	if (!is_null($hostRow["NotAvailDateFrom"])) {
-		
-		$today = strtotime(date("Y-m-d"));
-		$toDate = strtotime($hostRow["NotAvailDateTo"]);
-		
-		if ($today < $toDate) {
-	        $pdf->Cell($colW, 5, "NA: " . $hostRow["nadff"] . "-" . $hostRow["nadtf"], 0, 1);	
-		}
-	}
-	
-	endProfileRecord("col1");
-
-
+    printHostEntryCol1($hostRow);
 
 	startProfileRecord("col2");
 	// Print column 2.
@@ -402,5 +361,50 @@ function printHostEntry($hostRow, $peopleByPersonId) {
 	$oldStateOrRegion = $stateOrRegion;
 	$oldState = $state;
 	
+}
+
+function printHostEntryCol1($hostRow) {
+    global $pdf, $colW, $SleepingBagAbv, $WantsMoreAbv, $SmokingAbv;
+
+    startProfileRecord("col1");
+	// Print column 1.
+	
+	$pdf->Cell($colW,5,$hostRow["State"] . " " . $hostRow["Zip"], 0, 1);
+    $pdf->Cell($colW,5,$hostRow["City"], 0, 1);
+	
+    if ($hostRow["PrivateAddress"] == "t") {
+	    $pdf->Cell($colW, 5, "*PRIVATE ADDRESS*", 0, 1);	
+	} else {
+	    $pdf->Cell($colW, 5, $hostRow["Address1"], 0, 1);	    	
+	}
+	
+    $pdf->MultiCell($colW-10,5,$hostRow["RefLocationMiles"] . " " . $hostRow["RefLocationCardinalPoints"] . " from " . $hostRow["RefLocationDescription"], 0, 1);
+	
+	$hostPets = $petsById[$hostRow["HostId"]];
+	
+    $pdf->Cell($colW, 5, "PETS: " . getHostPetsString($hostPets), 0, 1);
+	
+	$hostDisabs = $disabsById[$hostRow["HostId"]];
+    $pdf->Cell($colW, 5, "DISAB: " . getHostDisabsString($hostDisabs), 0, 1);	
+	
+    $pdf->Cell($colW, 5, $hostRow["MaxGuests"] . "G" . $familyAbv, 0, 1);
+	
+	$pdf->Cell($colW, 5, $HostTypeAbv . "(+" . $hostRow["ExtendedDays"] . "d): " . $hostRow["AdvNoticeRequired"] . "dn / " . $hostRow["AdvNoticeRecommend"] . "da", 0, 1);
+    $pdf->Cell($colW, 5, $SleepingBagAbv . $WantsMoreAbv . $SmokingAbv, 0, 1);
+	
+    
+
+	if (!is_null($hostRow["NotAvailDateFrom"])) {
+		
+		$today = strtotime(date("Y-m-d"));
+		$toDate = strtotime($hostRow["NotAvailDateTo"]);
+		
+		if ($today < $toDate) {
+	        $pdf->Cell($colW, 5, "NA: " . $hostRow["nadff"] . "-" . $hostRow["nadtf"], 0, 1);	
+		}
+	}
+	
+	endProfileRecord("col1");
+
 }
 ?>
