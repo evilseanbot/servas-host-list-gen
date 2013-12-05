@@ -23,13 +23,9 @@ startProfileRecord("sql");
 
 $hostResult = pg_query(file_get_contents("sql/hostQuery.sql", true));
 
-
-$peopleResult = pg_query(file_get_contents("sql/peopleQuery.sql", true));
-
-$people = pg_fetch_all ($peopleResult);
+$people = pg_fetch_all(pg_query(file_get_contents("sql/peopleQuery.sql", true)));
 
 startProfileRecord("getSortedArray");
-//$regionsByZip = getArraySortedById($zips, "zip");
 $peopleByPersonId = getArraySortedById($people, "PersonId");
 $peopleByRelateId = getArraySortedById($people, "r_person_id");
 endProfileRecord("getSortedArray");
@@ -39,7 +35,6 @@ $petsById = sortedArrayFromSQL("petQuery.sql", "HostId");
 $phonesById = sortedArrayFromSQL("phoneQuery.sql", "HostId");
 $emailsById = sortedArrayFromSQL("emailQuery.sql", "HostId");
 $langsById = sortedArrayFromSQL("langQuery.sql", "HostId");
-
 
 endProfileRecord("sql");
 startProfileRecord("hostPrinting");
@@ -53,11 +48,6 @@ $pdf->_toc[] = array("t" => "Guide to reading the Host List", "l" => 0, "p" => 1
 $pdf->_toc[] = array("t" => "Language Code Abbreviations", "l" => 0, "p" => 14);
 $pdf->_toc[] = array("t" => "Country Code Abbreviations", "l" => 0, "p" => 16);
 $pdf->_toc[] = array("t" => "Miscellaneous Abbreviations", "l" => 0, "p" => 17);
-
-//$pdf->AddPage();
-//$pdf->AddFont('Georgia','','georgia2.php');
-//$pdf->SetFont('Georgia','',10);
-
 
 $blockOriginY = $pdf->GetY();
 $currentColX = 0;
@@ -349,13 +339,6 @@ for ($i = 0; $hostRow = pg_fetch_array($hostResult); $i++) {
 	
 	endProfileRecord("col3");
 	
-/*	$areaGoodiesModified = limitedString($hostRow["AreaGoodies"], 300);
-	$areaGoodiesModified = str_replace("\n", " ", $areaGoodiesModified);
-	//$areaGoodiesModified = str_replace("\t", " ", $areaGoodiesModified);
-	//$areaGoodiesModified = preg_replace('/\t+/', '', $areaGoodiesModified);
-	$areaGoodiesModified = preg_replace("/\s+/", " ", $areaGoodiesModified);*/
-
-	
 	$notesModified = limitedString(removeSpaceHogs($hostRow["NotesForGuests"]), 600);
 	$areaGoodiesModified = limitedString(removeSpaceHogs($hostRow["AreaGoodies"]), 600);
 	$interestsModified = limitedString(removeSpaceHogs($hostRow["Interests"]), 600);
@@ -367,11 +350,6 @@ for ($i = 0; $hostRow = pg_fetch_array($hostResult); $i++) {
     $pdf->setY($blockOriginY+60);
 	$pdf->SetX(5);
 	$pdf->MultiCell($colW*2.85, 4, $notesModified . " | Why: " . $areaGoodiesModified . " | Int: " . $interestsModified, 0, 1);	
-/*	$pdf->SetX(5);	
-	$pdf->MultiCell($colW*2.75, 4, "Why: " . $areaGoodiesModified, 0, 1);	
-	$pdf->SetX(5);
-	$pdf->MultiCell($colW*2.75, 4, "Int: " . $interestsModified, 0, 1);*/
-
 	
     $pdf->SetFont($font,'',$fontSize);
 	endProfileRecord("bottomCol");
