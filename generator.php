@@ -21,18 +21,13 @@ session_start();
 startProfileRecord("all");
 startProfileRecord("sql");
 
-$peopleQuery = "
-SELECT p.*, r.\"PersonId\" as r_person_id, date_part('year',age(p.\"BirthYear\")) as p_age, rd.\"RelationshipDefinition\"
-FROM 
-    acservas.\"S_Person\" p LEFT JOIN 
-	acservas.\"S_P_Relationships\" r ON p.\"PersonId\" = r.\"RelatedPersonId\" LEFT JOIN 
-	acservas.\"S_P_RelationshipDefinitions\" rd ON r.\"RelationshipDefinitionId\" = rd.\"RelationshipDefinitionId\" 
-ORDER BY r.\"RelatedPersonId\" 
-";
+//$peopleQuery = file_get_contents("sql/peopleQuery.sql", true);
+//$peopleResult = pg_query ($peopleQuery);
 
-$peopleResult = pg_query ($peopleQuery);
+$peopleResult = pg_query(file_get_contents("sql/peopleQuery.sql", true));
+$langResult = pg_query(file_get_contents("sql/langQuery.sql", true));
 
-
+/*
 $langQuery = "
 SELECT l.*, lc.*
 FROM acservas.\"S_H_Languages\" l,
@@ -42,6 +37,7 @@ WHERE h.\"HostId\" = l.\"HostId\" AND
       l.\"LanguageId\" = lc.\"LanguageId\"
 ";
 $langResult = pg_query ($langQuery);
+*/
 
 $emailQuery = "
 SELECT e.*, ed.*
