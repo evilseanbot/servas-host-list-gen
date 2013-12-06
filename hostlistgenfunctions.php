@@ -142,8 +142,6 @@ function limitedString ($origString, $limit) {
 
 function removeSpaceHogs($string) {
 	$string = str_replace("\n", " ", $string);
-	//$areaGoodiesModified = str_replace("\t", " ", $areaGoodiesModified);
-	//$areaGoodiesModified = preg_replace('/\t+/', '', $areaGoodiesModified);
 	$string = preg_replace("/\s+/", " ", $string);
 	return $string;
 }
@@ -421,4 +419,65 @@ function printHostEntryBottomCol($hostRow) {
     $pdf->SetFont($font,'',$fontSize);
 	endProfileRecord("bottomCol");
 }
+
+function addPagesFromPDF($pdfName, $numOfPages, $startingPage = 1) {
+	global $pdf;
+	$pdf->setSourceFile('addonPdfs/' . $pdfName); 
+	for ($i = $startingPage; $i < $startingPage + $numOfPages; $i++) { 
+		$page = $pdf->importPage($i, '/MediaBox'); 
+		$pdf->addPage(); 
+		$pdf->useTemplate($page, 0, 0, 210); 
+     }
+}
+
+function printIndex($index, $firstName, $secondName, $title) {
+    global $pdf;
+
+    newPage($title);
+    $pdf->TOC_Entry($title, 0);
+
+
+    
+    $currentX = 0;
+    $entriesInCol = 0;
+    $currentLineY = 0;    
+    $entriesPerCol = 50;
+    
+    foreach ($index as $indexEntry) {
+    	$pdf->SetX($currentX);
+    	$currentLineY = $pdf->GetY();
+
+    	
+    	$nameString = $indexEntry[$firstName] . ", " . $indexEntry[$secondName];
+    	$pdf->Cell(50, 5, $nameString, 0, 1);
+	    $pdf->Rect($currentX + $pdf->GetStringWidth($nameString) + 2, $currentLineY+4, 55 - ($pdf->GetStringWidth($nameString)) - 2, 0);
+	    $pdf->SetY($currentLineY);
+	    $pdf->SetX($currentX + 55);
+	    $pdf->Cell(50, 5, $indexEntry["IndexNo"], 0, 1);
+
+	    $entriesInCol++;
+	    if ($entriesInCol > $entriesPerCol) {
+            $entriesInCol = 0;
+            $pdf->SetY(10);
+            $currentX += 65;
+
+            if ($currentX > 160) {
+            	$currentX = 0;
+            	newPage($title);
+            }
+	    }
+    }
+}
+
+function printTimeStamp() {
+    global $pdf, $font, $fontSize, $colW;
+
+	$pdf->SetFont($font,'',$fontSize+2);
+	$pdf->SetY(250);
+	$pdf->SetX(80);
+    date_default_timezone_set('UTC');		
+    $pdf->Cell($colW, 5, "Updated: " . date("F j, Y, g:i a") . " UTC", 0, 1);	
+	$pdf->SetFont($font,'',$fontSize);	
+}
+
 ?>

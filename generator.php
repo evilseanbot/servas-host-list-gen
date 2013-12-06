@@ -68,6 +68,7 @@ $peopleIndex = array();
 $cityIndex = array();
 $pdf->SetFont($font,'',$fontSize);
 
+/*
 $pdf->setSourceFile('HostListFront.pdf'); 
 for ($i = 1; $i < 10; $i++) { 
 	$cover = $pdf->importPage($i, '/MediaBox'); 
@@ -83,34 +84,15 @@ for ($i = 1; $i < 10; $i++) {
 		$pdf->SetFont($font,'',$fontSize);
 	}
 }
+*/
 
-$pdf->setSourceFile('Guide for reading the Host List.pdf'); 
-for ($i = 1; $i < 3; $i++) { 
-	$page = $pdf->importPage($i, '/MediaBox'); 
-	$pdf->addPage(); 
-	$pdf->useTemplate($page, 0, 0, 210); 
-}
-
-$pdf->setSourceFile('Language Code Abbreviations.pdf'); 
-for ($i = 1; $i < 3; $i++) { 
-	$page = $pdf->importPage($i, '/MediaBox'); 
-	$pdf->addPage(); 
-	$pdf->useTemplate($page, 0, 0, 210); 
-}
-
-$pdf->setSourceFile('Country Code Abbreviations.pdf'); 
-for ($i = 1; $i < 2; $i++) { 
-	$page = $pdf->importPage($i, '/MediaBox'); 
-	$pdf->addPage(); 
-	$pdf->useTemplate($page, 0, 0, 210); 
-}
-
-$pdf->setSourceFile('HostListFront.pdf'); 
-for ($i = 10; $i < 11; $i++) { 
-	$page = $pdf->importPage($i, '/MediaBox'); 
-	$pdf->addPage(); 
-	$pdf->useTemplate($page, 0, 0, 210); 
-}
+addPagesFromPDF('HostListFront.pdf', 1);
+printTimeStamp();
+addPagesFromPDF('HostListFront.pdf', 8, 2);
+addPagesFromPDF('Guide for reading the Host List.pdf', 2);
+addPagesFromPDF('Language Code Abbreviations.pdf', 2);
+addPagesFromPDF('Country Code Abbreviations.pdf', 1);
+addPagesFromPDF('HostListFront.pdf', 1, 10);
 
 $pdf->_numPageNum=17;
 //printKeyPeople();
@@ -120,10 +102,6 @@ for ($i = 0; $hostRow = pg_fetch_array($hostResult); $i++) {
     printHostEntry($hostRow, $peopleByPersonId);
 }
 
-// print out the people index page:
-newPage("Index by host name");
-$pdf->TOC_Entry("Index by host name", 0);
-
 foreach ($peopleIndex as $key => $row) {
     $LastName[$key]  = $row['LastName'];
     $FirstName[$key] = $row['FirstName'];
@@ -131,40 +109,11 @@ foreach ($peopleIndex as $key => $row) {
 
 array_multisort($LastName, SORT_ASC, $FirstName, SORT_ASC, $peopleIndex);
 
-$entriesInCol = 0;
-$currentX = 0;
-$currentLineY = 0;
+// print out the people index page:
 
-foreach ($peopleIndex as $peopleIndexEntry) {
-	$pdf->SetX($currentX);
-	$currentLineY = $pdf->GetY();
-    $nameString = $peopleIndexEntry["LastName"] . ", " . $peopleIndexEntry["FirstName"];
-	
-    $pdf->Cell(50, 5, $nameString, 0, 1);
-	
-	$pdf->Rect($currentX + $pdf->GetStringWidth($nameString) + 2, $currentLineY+4, 55 - ($pdf->GetStringWidth($nameString)) - 2, 0);	
-	
-	$pdf->SetY($currentLineY);
-	$pdf->SetX($currentX+55);
-    $pdf->Cell(50, 5, $peopleIndexEntry["IndexNo"], 0, 1);	
-	
-	$entriesInCol++;
-	if ($entriesInCol > 50) {
-		$entriesInCol = 0;
-		$pdf->SetY(10);
-	    $currentX += 65;
-		
-		if ($currentX > 160) {
-		    $currentX = 0;
-			newPage("Index by Host Name");
-		}
-		
-	}
-}
+printIndex($peopleIndex, "LastName", "FirstName", "Index By Host Name");
 
 // print out the city index page:
-newPage("Index by City Name");
-$pdf->TOC_Entry("Index by city name", 0);
 
 foreach ($cityIndex as $key => $row) {
     $City[$key]  = $row['City'];
@@ -173,9 +122,6 @@ foreach ($cityIndex as $key => $row) {
 
 array_multisort($City, SORT_ASC, $State, SORT_ASC, $cityIndex);
 
-$entriesInCol = 0;
-$currentX = 0;
-$currentLineY = 0;
 
 $uniqueCityIndex = array();
 
@@ -191,33 +137,7 @@ for ($i = 0; $i < sizeof($cityIndex); $i++) {
 
 $cityIndex = $uniqueCityIndex;
 
-foreach ($cityIndex as $cityIndexEntry) {
-	$pdf->SetX($currentX);
-	$currentLineY = $pdf->GetY();
-    $nameString = $cityIndexEntry["City"] . ", " . $cityIndexEntry["State"];
-	
-    $pdf->Cell(50, 5, $nameString, 0, 1);
-	
-	$pdf->Rect($currentX + $pdf->GetStringWidth($nameString) + 2, $currentLineY+4, 55 - ($pdf->GetStringWidth($nameString)) - 2, 0);	
-	
-	$pdf->SetY($currentLineY);
-	$pdf->SetX($currentX+55);
-    $pdf->Cell(50, 5, $cityIndexEntry["IndexNo"], 0, 1);	
-	
-	$entriesInCol++;
-	if ($entriesInCol > 50) {
-		$entriesInCol = 0;
-		$pdf->SetY(10);
-	    $currentX += 65;
-		
-		if ($currentX > 160) {
-		    $currentX = 0;
-			newPage("Index by City Name");
-		}
-		
-	}
-}
-
+printIndex($cityIndex, "City", "State", "Index by City Name");
 
 endProfileRecord("hostPrinting");
 endProfileRecord("all");
