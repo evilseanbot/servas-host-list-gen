@@ -27,6 +27,7 @@ $petsById = sortedArrayFromSQL("petQuery.sql", "HostId");
 $phonesById = sortedArrayFromSQL("phoneQuery.sql", "HostId");
 $emailsById = sortedArrayFromSQL("emailQuery.sql", "HostId");
 $langsById = sortedArrayFromSQL("langQuery.sql", "HostId");
+//$peopleByPersonId = sortedArrayFromSQL("peopleQuery.sql", "PersonId");
 
 //$peopleByPersonId = sortedArrayFromSQL("peopleQuery.sql", "PersonId");
 

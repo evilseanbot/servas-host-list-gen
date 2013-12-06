@@ -94,18 +94,12 @@ function getHostLangString($hostLangs) {
 
 function getHostPetsString($hostPets) {
     $petsString = "";
-	
-	for ($i = 0; $i < sizeof($hostPets); $i++) {
-	    if ($hostPets[$i]["PetId"] == "1") {
-		    $petsString .= "D";	
-		} else if ($hostPets[$i]["PetId"] == "2") {
-		    $petsString .= "C";	
-		} else if ($hostPets[$i]["PetId"] == "3") {
-		    $petsString .= "B";	
-		} else if ($hostPets[$i]["PetId"] == "4") {
-		    $petsString .= "O";	
-		}
-	}
+
+    $mappedSymbols = array("PetId" => array("1" => "D", "2" => "C", "3" => "B", "4" => "O"));
+
+    foreach ($hostPets as $hostPet) {
+    	$petsString .= translateFields($hostPet, $mappedSymbols)["PetId"];
+    }
 	
 	return $petsString;
 }
@@ -147,9 +141,6 @@ function removeSpaceHogs($string) {
 }
 
 function sortedArrayFromSQL($queryName, $id) {
-    if (!file_get_contents("sql/" . $queryName)) {
-    	return "Error: File doesn't exist";
-    }
     $string = file_get_contents("sql/" . $queryName, true);
     return getArraySortedById(pg_fetch_all(pg_query($string)), $id);
 }
@@ -237,7 +228,7 @@ function translateFields ($row, $mappedSymbols) {
 }
 
 function printHostEntryCol1($hostRow) {
-    global $pdf, $colW;
+    global $pdf, $colW, $petsById, $disabsById;
 
     $mappedSymbols = array("SleepingBagId" => array("2" => "SBA ", "3" => "SBN "),
                            "SmokingId" => array("1" => "HSI ", "2" => "SOK ", "3" => "NIS ", "4" => "NSA "),
