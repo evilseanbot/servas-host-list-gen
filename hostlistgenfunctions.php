@@ -106,20 +106,13 @@ function getHostPetsString($hostPets) {
 
 function getHostDisabsString($hostDisabs) {
     $disabsString = "";
+
+    $mappedSymbols = array("DisabilityId" => array("1" => "H", "2" => "V", "3" => "G", "4" => "C", "5" => "W"));
+
+    foreach ($hostDisabs as $hostDisab) {
+    	$disabsString .= translateFields($hostDisab, $mappedSymbols)["DisabilityId"];
+    }
 	
-	for ($i = 0; $i < sizeof($hostDisabs); $i++) {
-	    if ($hostDisabs[$i]["DisabilityId"] == "1") {
-		    $disabsString .= "H";	
-		} else if ($hostDisabs[$i]["DisabilityId"] == "2") {
-		    $disabsString .= "V";	
-		} else if ($hostDisabs[$i]["DisabilityId"] == "3") {
-		    $disabsString .= "G";	
-		} else if ($hostDisabs[$i]["DisabilityId"] == "4") {
-		    $disabsString .= "C";	
-		}else if ($hostDisabs[$i]["DisabilityId"] == "5") {
-		    $disabsString .= "W";	
-		}
-	}
 	return $disabsString;
 }
 

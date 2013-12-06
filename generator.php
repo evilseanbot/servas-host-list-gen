@@ -24,8 +24,8 @@ $peopleByRelateId = getArraySortedById($people, "r_person_id");
 
 $disabsById = sortedArrayFromSQL("disabQuery.sql", "HostId");
 $petsById = sortedArrayFromSQL("petQuery.sql", "HostId");
-$phonesById = sortedArrayFromSQL("phoneQuery.sql", "HostId");
-$emailsById = sortedArrayFromSQL("emailQuery.sql", "HostId");
+$phonesById = sortedArrayFromSQL("phoneQuery.sql", "PersonId");
+$emailsById = sortedArrayFromSQL("emailQuery.sql", "PersonId");
 $langsById = sortedArrayFromSQL("langQuery.sql", "HostId");
 //$peopleByPersonId = sortedArrayFromSQL("peopleQuery.sql", "PersonId");
 
@@ -69,7 +69,7 @@ addPagesFromPDF('Country Code Abbreviations.pdf', 1);
 addPagesFromPDF('HostListFront.pdf', 1, 10);
 
 $pdf->_numPageNum = 17;
-//printKeyPeople();
+printKeyPeople();
 $pdf->startPageNums();
 
 // Print the Host Entries
