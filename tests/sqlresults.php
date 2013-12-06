@@ -14,20 +14,19 @@ include "../hostlistgenfunctions.php";
 session_start(); 
 //authUser($_SESSION[User]);
 
-$hostResult = pg_query(file_get_contents("sql/hostQuery.sql", true));
-$people = pg_fetch_all(pg_query(file_get_contents("sql/peopleQuery.sql", true)));
+$hostResult = pg_query(file_get_contents("../sql/hostQuery.sql", true));
+$people = pg_fetch_all(pg_query(file_get_contents("../sql/peopleQuery.sql", true)));
 $peopleByPersonId = getArraySortedById($people, "PersonId");
-$peopleByRelateId = getArraySortedById($people, "r_person_id");
+//$peopleByRelateId = getArraySortedById($people, "r_person_id");
 
 $disabsById = sortedArrayFromSQL("disabQuery.sql", "HostId");
 $petsById = sortedArrayFromSQL("petQuery.sql", "HostId");
-$phonesById = sortedArrayFromSQL("phoneQuery.sql", "HostId");
-$emailsById = sortedArrayFromSQL("emailQuery.sql", "HostId");
+$phonesById = sortedArrayFromSQL("phoneQuery.sql", "PerspnId");
+$emailsById = sortedArrayFromSQL("emailQuery.sql", "PersonId");
 $langsById = sortedArrayFromSQL("langQuery.sql", "HostId");
+//$peopleByPersonId = sortedArrayFromSQL("peopleQuery.sql", "PersonId");
 
 header('Content-type: text/plain');
-echo "<pre>" . print_r($diabsById) . "";
-echo "******************** PETS ********************";
-echo "" . print_r($petsById) . "</pre>";
+echo "<pre>" . print_r($peopleByPersonId) . "</pre>";
 
 ?>

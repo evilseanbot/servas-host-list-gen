@@ -34,10 +34,9 @@ function newCol() {
 }
 
 function newPage($header) {
-	global $pdf, $pageNo, $pageNoOnLeft, $colW, $pageW;
+	global $pdf, $pageNoOnLeft, $colW, $pageW;
 	$pdf->AddPage();
 	
-	$pageNo++;
 	if ($pageNoOnLeft == true) {
 	   $pageNoOnLeft = false;	
 	} else {
@@ -48,7 +47,6 @@ function newPage($header) {
 	if (!$pageNoOnLeft) {
 		$pdf->SetX(200);
 	}
-	//$pdf->Cell(10, 10, $pageNo, 0, 1);		
 	$pdf->Cell(10, 10, $pdf->numPageNo(), 0, 1);
 	$pdf->setY(0);
 	$pdf->SetX(($colW*1.5) - ($pdf->GetStringWidth($header)/2) );		
@@ -182,18 +180,8 @@ function printHostEntry($hostRow, $peopleByPersonId) {
 	newBlock();
 	$blocksDisplayed++;
 	
-	
-	// Assign a page no to this host's peopleIndex entry.
-	$peopleIndex[$hostRow["HostId"]] = array();
-	$peopleIndex[$hostRow["HostId"]]["LastName"] = $hostRow["LastName"];
-	$peopleIndex[$hostRow["HostId"]]["FirstName"] = $hostRow["FirstName"];	
-	$peopleIndex[$hostRow["HostId"]]["IndexNo"] = $pdf->_numPageNum;
-    
-	// Assign a page no to this host's peopleIndex entry.
-	$cityIndex[$hostRow["HostId"]] = array();
-	$cityIndex[$hostRow["HostId"]]["City"] = $hostRow["City"];
-	$cityIndex[$hostRow["HostId"]]["State"] = $hostRow["State"];	
-	$cityIndex[$hostRow["HostId"]]["IndexNo"] = $pdf->_numPageNum;
+	$peopleIndex = addEntryToIndex($peopleIndex, $hostRow, "FirstName", "LastName");
+	$cityIndex = addEntryToIndex($cityIndex, $hostRow, "City", "State");
 	
     printHostEntryCol1($hostRow);
     printHostEntryCol2($hostRow, $peopleByPersonId);
@@ -204,6 +192,16 @@ function printHostEntry($hostRow, $peopleByPersonId) {
 	$oldStateOrRegion = $stateOrRegion;
 	$oldState = $state;
 	
+}
+
+function addEntryToIndex($index, $hostRow, $firstName, $secondName) {
+	global $pdf;
+	$index[$hostRow["HostId"]] = array();
+	$index[$hostRow["HostId"]][$firstName] = $hostRow[$firstName];
+	$index[$hostRow["HostId"]][$secondName] = $hostRow[$secondName];	
+	$index[$hostRow["HostId"]]["IndexNo"] = $pdf->_numPageNum;
+
+	return $index;
 }
 
 function translateFields ($row, $mappedSymbols) {
@@ -381,6 +379,7 @@ function addPagesFromPDF($pdfName, $numOfPages, $startingPage = 1) {
 		$page = $pdf->importPage($i, '/MediaBox'); 
 		$pdf->addPage(); 
 		$pdf->useTemplate($page, 0, 0, 210); 
+		$pdf->_numPageNum++;
      }
 }
 

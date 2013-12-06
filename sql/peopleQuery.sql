@@ -1,4 +1,8 @@
-SELECT p.*, 
+SELECT p."PersonId",
+       p."FirstName",
+       p."LastName",
+       p."Occupation",
+       p."Gender", 
        r."PersonId" as r_person_id, 
        date_part('year',age(p."BirthYear")) as p_age, 
        rd."RelationshipDefinition"
