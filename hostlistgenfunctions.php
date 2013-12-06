@@ -222,54 +222,31 @@ function printHostEntry($hostRow, $peopleByPersonId) {
 	
 }
 
+function translateFields ($row, $mappedSymbols) {
+    $mappedItems = array_keys($mappedSymbols); //$mappedSymbols.keys(); //["SleepingBagId", "WantsTravelers", "SmokingId", "HostTypeId", "FamiliesWelcome"];
+
+    $translatedFields = [];
+    foreach ($mappedItems as $mappedItem) {
+	    if (array_key_exists($row[$mappedItem], $mappedSymbols[$mappedItem])) {
+	        $translatedFields[$mappedItem] = $mappedSymbols[$mappedItem][$row[$mappedItem]];
+	    } else {
+	    	$translatedFields[$mappedItem] = "";
+	    }
+	}
+	return $translatedFields;
+}
+
 function printHostEntryCol1($hostRow) {
     global $pdf, $colW;
 
- 	if ($hostRow["SleepingBagId"] == 2) {
-		$SleepingBagAbv = "SBA ";  
-	} elseif ($hostRow["SleepingBagId"] == 3) {
-		$SleepingBagAbv = "SBN ";  
-	}  else {
-		$SleepingBagAbv = ""; 
-	}
-	
-	if ($hostRow["SmokingId"] == 1) {
-		$SmokingAbv = "HSI ";  
-	} elseif ($hostRow["SmokingId"] == 2) {
-		$SmokingAbv = "SOK ";  
-	} elseif ($hostRow["SmokingId"] == 3) {
-		$SmokingAbv = "NIS "; 
-	} elseif ($hostRow["SmokingId"] == 4) {
-		$SmokingAbv = "NSA ";
-	}  else {
-		$SmokingAbv = ""; 
-	}
-	
-	if ($hostRow["WantsTravelers"] == "t") {
-	    $WantsMoreAbv = "WMT "; 
-	} else {
-	    $WantsMoreAbv = "";		
-	}
-	
-	if ($hostRow["HostTypeId"] == 1) {
-		$HostTypeAbv = "2n";
-	} else if ($hostRow["HostTypeId"] == 2) {
-	    $HostTypeAbv = "1d";	
-	} else if ($hostRow["HosttypeId"] == 3) {
-	    $HostTypeAbv = "NOT HOSTING";	
-	} else {
-		$HostTypeAbv = "";
-	}
-	
-	if ($hostRow["FamiliesWelcome"] == 't') {
-	    $familyAbv = " (FAM)";			 
-	} else {
-	    $familyAbv = "";
-	}
+    $mappedSymbols = array("SleepingBagId" => array("2" => "SBA ", "3" => "SBN "),
+                           "SmokingId" => array("1" => "HSI ", "2" => "SOK ", "3" => "NIS ", "4" => "NSA "),
+                           "WantsTravelers" => array("t" => "WMT "),
+                           "HostTypeId" => array("1" => "2n", "2" => "1d", "3" => "NOT HOSTING"),
+                           "FamiliesWelcome" => array("t" => "(FAM)"),                           
+    	             );
 
-
-    startProfileRecord("col1");
-	// Print column 1.
+    $translatedFields = translateFields($hostRow, $mappedSymbols);
 	
 	$pdf->Cell($colW,5,$hostRow["State"] . " " . $hostRow["Zip"], 0, 1);
     $pdf->Cell($colW,5,$hostRow["City"], 0, 1);
@@ -283,19 +260,15 @@ function printHostEntryCol1($hostRow) {
     $pdf->MultiCell($colW-10,5,$hostRow["RefLocationMiles"] . " " . $hostRow["RefLocationCardinalPoints"] . " from " . $hostRow["RefLocationDescription"], 0, 1);
 	
 	$hostPets = $petsById[$hostRow["HostId"]];
-	
     $pdf->Cell($colW, 5, "PETS: " . getHostPetsString($hostPets), 0, 1);
 	
 	$hostDisabs = $disabsById[$hostRow["HostId"]];
     $pdf->Cell($colW, 5, "DISAB: " . getHostDisabsString($hostDisabs), 0, 1);	
-	
-    $pdf->Cell($colW, 5, $hostRow["MaxGuests"] . "G" . $familyAbv, 0, 1);
-	
-	$pdf->Cell($colW, 5, $HostTypeAbv . "(+" . $hostRow["ExtendedDays"] . "d): " . $hostRow["AdvNoticeRequired"] . "dn / " . $hostRow["AdvNoticeRecommend"] . "da", 0, 1);
-    $pdf->Cell($colW, 5, $SleepingBagAbv . $WantsMoreAbv . $SmokingAbv, 0, 1);
-	
-    
+    $pdf->Cell($colW, 5, $hostRow["MaxGuests"] . "G" . " " . $translatedFields["FamiliesWelcome"] . " ", 0, 1);
+	$pdf->Cell($colW, 5, $translatedFields["HostTypeId"] . "(+" . $hostRow["ExtendedDays"] . "d): " . $hostRow["AdvNoticeRequired"] . "dn / " . $hostRow["AdvNoticeRecommend"] . "da", 0, 1);
+    $pdf->Cell($colW, 5, $translatedFields["SleepingBagId"] . $translatedFields["WantsTravelers"] . $translatedFields["SmokingId"], 0, 1);    
 
+    // Display notice if the host is not available from a certain date.
 	if (!is_null($hostRow["NotAvailDateFrom"])) {
 		
 		$today = strtotime(date("Y-m-d"));
@@ -304,10 +277,7 @@ function printHostEntryCol1($hostRow) {
 		if ($today < $toDate) {
 	        $pdf->Cell($colW, 5, "NA: " . $hostRow["nadff"] . "-" . $hostRow["nadtf"], 0, 1);	
 		}
-	}
-	
-	endProfileRecord("col1");
-
+	}	
 }
 
 function printHostEntryCol2($hostRow, $peopleByPersonId) {
@@ -430,13 +400,36 @@ function addPagesFromPDF($pdfName, $numOfPages, $startingPage = 1) {
      }
 }
 
-function printIndex($index, $firstName, $secondName, $title) {
+function printIndex($index, $firstName, $secondName, $title, $enforceUnique = false) {
     global $pdf;
+
+	foreach ($index as $key => $row) {
+	    $firstNamePages[$key]  = $row[$firstName];
+	    $secondNamePages[$key] = $row[$secondName];
+	}
+
+    array_multisort($firstNamePages, SORT_ASC, $secondNamePages, SORT_ASC, $index);
+
+    $uniqueIndex = [];
+
+    if ($enforceUnique) {
+		for ($i = 0; $i < sizeof($index); $i++) {
+		    if ($i > 0) {
+		    	if ( ($index[$i][$firstName] != $index[$i-1][$firstName]) || ($index[$i][$secondName] != $index[$i-1][$secondName]) ){
+			        array_push($uniqueIndex, $index[$i]);	
+				}
+			} else {
+			    array_push($uniqueIndex, $index[$i]);		
+			}
+		}
+
+		$index = $uniqueIndex;
+    }
 
     newPage($title);
     $pdf->TOC_Entry($title, 0);
 
-
+    
     
     $currentX = 0;
     $entriesInCol = 0;

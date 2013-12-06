@@ -63,7 +63,12 @@ ORDER BY
             $otherRole = "";
 		}
 	
-	    $personListing = $personRow["FirstName"] . " " . $personRow["LastName"] . " " . $otherRole . " " . $emailsById[$personRow["PersonId"]][0]["Email"] . " " . $phonesById[$personRow["PersonId"]][0]["AreaCode"] . "-" . $phonesById[$personRow["PersonId"]][0]["Phone"];	
+	    $personListing = $personRow["FirstName"] . " " . 
+	        $personRow["LastName"] . " " . 
+	        $otherRole . " " . 
+	        $emailsById[$personRow["PersonId"]][0]["Email"] . " " . 
+	        $phonesById[$personRow["PersonId"]][0]["AreaCode"] . "-" . 
+	        $phonesById[$personRow["PersonId"]][0]["Phone"];	
 	
         $pdf->Cell(100, 5, $personListing, 0, 1);
 		
