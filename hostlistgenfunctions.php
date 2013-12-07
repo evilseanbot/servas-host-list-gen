@@ -20,19 +20,6 @@ function authUser($user) {
 	}    
 }
 
-function newBlock() {
-	global $pdf, $blockOriginY, $currentColX, $colW, $blockH, $pageW;
-    $blockOriginY = $pdf->getY();	
-	$currentColX = 0;
-	$pdf->Rect(15, $blockOriginY, $pageW, 0);	
-}
-
-function newCol() {
-	global $pdf, $blockOriginY, $currentColX, $colW;
-    $pdf->setY($blockOriginY);
-	$currentColX += $colW;
-}
-
 function newPage($header, $clearBlocksDisplayed = false) {
 	global $pdf, $pageNoOnLeft, $colW, $pageW, $blocksDisplayed;
 	$pdf->AddPage();
@@ -69,43 +56,6 @@ function getArraySortedById($multiSQL, $idType) {
 		array_push($arrayFromSQL[$rowId], $multiSQL[$i]);
 	}
 	return $arrayFromSQL;	
-}
-
-
-function getHostLangString($hostLangs) {
-    
-	$langString = $hostLangs[0]["LanguageCode"] . "(" . $hostLangs[0]["LanguageFluency"] .")";
-	
-	for ($i = 1; $i < sizeof($hostLangs); $i++) {
-	
-    	$langString = $langString . ", " . $hostLangs[$i]["LanguageCode"] . "(" . $hostLangs[$i]["LanguageFluency"] . ")";						 
-	}
-	
-	return $langString;
-}
-
-function getHostPetsString($hostPets) {
-    $petsString = "";
-
-    $mappedSymbols = array("PetId" => array("1" => "D", "2" => "C", "3" => "B", "4" => "O"));
-
-    foreach ($hostPets as $hostPet) {
-    	$petsString .= translateFields($hostPet, $mappedSymbols)["PetId"];
-    }
-	
-	return $petsString;
-}
-
-function getHostDisabsString($hostDisabs) {
-    $disabsString = "";
-
-    $mappedSymbols = array("DisabilityId" => array("1" => "H", "2" => "V", "3" => "G", "4" => "C", "5" => "W"));
-
-    foreach ($hostDisabs as $hostDisab) {
-    	$disabsString .= translateFields($hostDisab, $mappedSymbols)["DisabilityId"];
-    }
-	
-	return $disabsString;
 }
 
 function limitedString ($origString, $limit) {
