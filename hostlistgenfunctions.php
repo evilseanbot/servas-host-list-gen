@@ -33,8 +33,8 @@ function newCol() {
 	$currentColX += $colW;
 }
 
-function newPage($header) {
-	global $pdf, $pageNoOnLeft, $colW, $pageW;
+function newPage($header, $clearBlocksDisplayed = false) {
+	global $pdf, $pageNoOnLeft, $colW, $pageW, $blocksDisplayed;
 	$pdf->AddPage();
 	
 	if ($pageNoOnLeft == true) {
@@ -52,16 +52,11 @@ function newPage($header) {
 	$pdf->SetX(($colW*1.5) - ($pdf->GetStringWidth($header)/2) );		
 	$pdf->Cell(0, 10, $header, 0, 1);	
 	$pdf->Rect(15, 10, $pageW, 0);	
+
+	if ($clearBlocksDisplayed) {
+		$blocksDisplayed = 0;
+	}
 }
-
-function newHostPage() {
-	global $hostRow, $blocksDisplayed, $stateOrRegion;
-
-	$blocksDisplayed = 0;
-	newPage($stateOrRegion);
-}
-
-
 
 function getArraySortedById($multiSQL, $idType) {
 	$arrayFromSQL = array();
@@ -75,7 +70,6 @@ function getArraySortedById($multiSQL, $idType) {
 	}
 	return $arrayFromSQL;	
 }
-
 
 
 function getHostLangString($hostLangs) {
@@ -114,7 +108,6 @@ function getHostDisabsString($hostDisabs) {
 	return $disabsString;
 }
 
-
 function limitedString ($origString, $limit) {
     if (strlen($origString) > $limit) {
 	    $newString = substr($origString, 0, $limit);
@@ -147,7 +140,7 @@ function addEntryToIndex($index, $hostRow, $firstName, $secondName) {
 }
 
 function translateFields ($row, $mappedSymbols) {
-    $mappedItems = array_keys($mappedSymbols); //$mappedSymbols.keys(); //["SleepingBagId", "WantsTravelers", "SmokingId", "HostTypeId", "FamiliesWelcome"];
+    $mappedItems = array_keys($mappedSymbols);
 
     $translatedFields = [];
     foreach ($mappedItems as $mappedItem) {

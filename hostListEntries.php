@@ -16,14 +16,14 @@ function printHostEntry($hostRow, $style, $peopleByPersonId) {
 	$newState = $state;
 	
 	if ($firstEntry) {
-	    newHostPage();
+	    newPage($stateOrRegion, true);
 		newBlock();
 		$firstEntry = false;
 		$pdf->TOC_Entry("Host List", 0);
 	}
 	
 	if (($newStateOrRegion != $oldStateOrRegion) && ($blocksDisplayed != 0)){
-	    newHostPage();
+	    newPage($stateOrRegion, true);
 		newBlock();	
      }	
 	
@@ -39,7 +39,7 @@ function printHostEntry($hostRow, $style, $peopleByPersonId) {
 
 	   // Count up blocks displayed
     if ($blocksDisplayed == 3) {	
-		newHostPage();
+		newPage($stateOrRegion, true);
 	} 
 	newBlock();
 	$blocksDisplayed++;
