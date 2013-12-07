@@ -53,7 +53,7 @@ $font = "Times";
 
 // $style is a collection of information about the presentation of the document.
 
-$style = array("colW" => 70, "blockH" => 300, "pageW" => 170, "stdFontSize" => 10, "stdFont" => "Times");
+$style = array("colW" => 70, "bottomColW" => 199, "blockH" => 300, "pageW" => 170, "stdFontSize" => 10, "stdFont" => "Times");
 
 $pageNoOnLeft = false;
 $firstEntry = true;
