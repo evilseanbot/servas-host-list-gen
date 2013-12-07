@@ -11,6 +11,7 @@ include "profiling.php";
 include "toc.php";
 include "passwordFile.php";
 include "hostListGenFunctions.php";
+include "hostListEntries.php";
 
 // Switch these security measures around when uploading it to the public side
 
@@ -38,7 +39,8 @@ $pdf->_toc[] = array("t" => "Miscellaneous Abbreviations", "l" => 0, "p" => 17);
 
 $TOCPages = 2;
 
-$pdf->_numPageNum = 1 + $TOCPages;
+// The PDF starts on page 1.
+$pdf->_numPageNum = 1;
 
 $blockOriginY = $pdf->GetY();
 $currentColX = 0;
@@ -49,6 +51,10 @@ $pageW = 170;
 $fontSize = 10;
 $font = "Times";
 
+// $style is a collection of information about the presentation of the document.
+
+$style = array("colW" => 70, "blockH" => 300, "pageW" => 170, "stdFontSize" => 10, "stdFont" => "Times");
+
 $pageNoOnLeft = false;
 $firstEntry = true;
 $oldState = "";
@@ -56,7 +62,7 @@ $newState = "";
 
 $peopleIndex = array();
 $cityIndex = array();
-$pdf->SetFont($font,'',$fontSize);
+$pdf->SetFont($style["stdFont"],'',$style["stdFontSize"]);
 
 addPagesFromPDF('HostListFront.pdf', 1);
 printTimeStamp();
@@ -72,7 +78,7 @@ $pdf->startPageNums();
 // Print the Host Entries
 	
 for ($i = 0; $hostRow = pg_fetch_array($hostResult); $i++) {	
-    printHostEntry($hostRow, $peopleByPersonId);
+    printHostEntry($hostRow, $style, $peopleByPersonId);
 }
 
 printIndex($peopleIndex, "LastName", "FirstName", "Index By Host Name");
