@@ -40,20 +40,15 @@ $pdf->_toc[] = array("t" => "Miscellaneous Abbreviations", "l" => 0, "p" => 17);
 $TOCPages = 2;
 
 // The PDF starts on page 1.
-$pdf->_numPageNum = 1;
+$pdf->_numPageNum = 1 + $TOCPages;
 
 $blockOriginY = $pdf->GetY();
 $currentColX = 0;
-$colW = 70;
 $blocksDisplayed = 0;
-$blockH = 300;
-$pageW = 170;
-$fontSize = 10;
-$font = "Times";
 
 // $style is a collection of information about the presentation of the document.
 
-$style = array("colW" => 70, "bottomColW" => 199, "blockH" => 300, "pageW" => 170, "stdFontSize" => 10, "stdFont" => "Times");
+$style = array("colW" => 70, "bottomColW" => 199, "headerW" => 105, "blockH" => 300, "pageW" => 170, "stdFontSize" => 10, "stdFont" => "Times");
 
 $pageNoOnLeft = false;
 $firstEntry = true;
@@ -65,7 +60,7 @@ $cityIndex = array();
 $pdf->SetFont($style["stdFont"],'',$style["stdFontSize"]);
 
 addPagesFromPDF('HostListFront.pdf', 1);
-printTimeStamp();
+printTimeStamp($pdf, $style);
 addPagesFromPDF('HostListFront.pdf', 8, 2);
 addPagesFromPDF('Guide for reading the Host List.pdf', 2);
 addPagesFromPDF('Language Code Abbreviations.pdf', 2);
@@ -81,8 +76,8 @@ for ($i = 0; $hostRow = pg_fetch_array($hostResult); $i++) {
     printHostEntry($hostRow, $style, $peopleByPersonId);
 }
 
-printIndex($peopleIndex, "LastName", "FirstName", "Index By Host Name");
-printIndex($cityIndex, "City", "State", "Index by City Name", true);
+printIndex($peopleIndex, $style, "LastName", "FirstName", "Index By Host Name");
+printIndex($cityIndex, $style, "City", "State", "Index by City Name", true);
 
 $pdf->insertTOC(5, 24, 12);
 $pdf->Output();

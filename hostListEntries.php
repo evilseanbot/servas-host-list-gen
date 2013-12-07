@@ -16,14 +16,14 @@ function printHostEntry($hostRow, $style, $peopleByPersonId) {
 	$newState = $state;
 	
 	if ($firstEntry) {
-	    newPage($stateOrRegion, true);
+	    newPage($stateOrRegion, $style, true);
 		newBlock();
 		$firstEntry = false;
 		$pdf->TOC_Entry("Host List", 0);
 	}
 	
 	if (($newStateOrRegion != $oldStateOrRegion) && ($blocksDisplayed != 0)){
-	    newPage($stateOrRegion, true);
+	    newPage($stateOrRegion, $style, true);
 		newBlock();	
      }	
 	
@@ -39,9 +39,9 @@ function printHostEntry($hostRow, $style, $peopleByPersonId) {
 
 	   // Count up blocks displayed
     if ($blocksDisplayed == 3) {	
-		newPage($stateOrRegion, true);
+		newPage($stateOrRegion, $style, true);
 	} 
-	newBlock();
+	newBlock($style);
 	$blocksDisplayed++;
 	
 	$peopleIndex = addEntryToIndex($peopleIndex, $hostRow, "FirstName", "LastName");
@@ -106,7 +106,7 @@ function printHostEntryCol2($hostRow, $style, $peopleByPersonId) {
 
 	startProfileRecord("col2");
 	// Print column 2.
-	newCol();
+	newCol($style);
 
 	if (array_key_exists($hostRow["PersonId"], $peopleByPersonId) ){
 	    
@@ -157,7 +157,7 @@ function printHostEntryCol3($hostRow, $style) {
 	
 	$hostEmails = $emailsById[$hostRow["PersonId"]];
 	
-    newCol();
+    newCol($style);
 	$pdf->SetX($currentColX);	
 	if (sizeof($hostLangs) != 0) {
 	    $pdf->Cell($style["colW"], 5, "Lang: " . $hostLangString, 0, 1);	
@@ -186,9 +186,7 @@ function printHostEntryCol3($hostRow, $style) {
 	$pdf->SetX($currentColX);
     $pdf->MultiCell($style["colW"], 5, "LV: " . limitedString(removeSpaceHogs(abvNations($hostRow["LivedIn"])), 150), 0, 1);
 	$pdf->SetX($currentColX);
-    $pdf->MultiCell($style["colW"], 5, "TV: " . limitedString(removeSpaceHogs(abvNations($hostRow["TraveledIn"])), 150), 0, 1);
-	
-	endProfileRecord("col3");
+    $pdf->MultiCell($style["colW"], 5, "TV: " . limitedString(removeSpaceHogs(abvNations($hostRow["TraveledIn"])), 150), 0, 1);	
 }
 
 function printHostEntryBottomCol($hostRow, $style) {
@@ -198,7 +196,6 @@ function printHostEntryBottomCol($hostRow, $style) {
 	$areaGoodiesModified = limitedString(removeSpaceHogs($hostRow["AreaGoodies"]), 600);
 	$interestsModified = limitedString(removeSpaceHogs($hostRow["Interests"]), 600);	
 	
-	startProfileRecord("bottomCol");
     // Display the long story.
     $pdf->SetFont($style["stdFont"],'I',$style["stdFontSize"]);
     $pdf->setY($blockOriginY+60);
@@ -206,7 +203,6 @@ function printHostEntryBottomCol($hostRow, $style) {
 	$pdf->MultiCell($style["bottomColW"], 4, $notesModified . " | Why: " . $areaGoodiesModified . " | Int: " . $interestsModified, 0, 1);	
 	
     $pdf->SetFont($style["stdFont"], '' ,$style["stdFontSize"]);
-	endProfileRecord("bottomCol");
 }
 
 function getHostLangString($hostLangs) {
@@ -235,17 +231,17 @@ function getHostDisabsString($hostDisabs) {
 	return $disabsString;
 }
 
-function newBlock() {
-	global $pdf, $blockOriginY, $currentColX, $colW, $blockH, $pageW;
+function newBlock($style) {
+	global $pdf, $blockOriginY, $currentColX;
     $blockOriginY = $pdf->getY();	
 	$currentColX = 0;
-	$pdf->Rect(15, $blockOriginY, $pageW, 0);	
+	$pdf->Rect(15, $blockOriginY, $style["pageW"], 0);	
 }
 
-function newCol() {
-	global $pdf, $blockOriginY, $currentColX, $colW;
+function newCol($style) {
+	global $pdf, $blockOriginY, $currentColX;
     $pdf->setY($blockOriginY);
-	$currentColX += $colW;
+	$currentColX += $style["colW"];
 }
 
 ?>

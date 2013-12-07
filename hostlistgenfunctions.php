@@ -20,8 +20,8 @@ function authUser($user) {
 	}    
 }
 
-function newPage($header, $clearBlocksDisplayed = false) {
-	global $pdf, $pageNoOnLeft, $colW, $pageW, $blocksDisplayed;
+function newPage($header, $style, $clearBlocksDisplayed = false) {
+	global $pdf, $pageNoOnLeft, $blocksDisplayed;
 	$pdf->AddPage();
 	
 	if ($pageNoOnLeft == true) {
@@ -36,9 +36,9 @@ function newPage($header, $clearBlocksDisplayed = false) {
 	}
 	$pdf->Cell(10, 10, $pdf->numPageNo(), 0, 1);
 	$pdf->setY(0);
-	$pdf->SetX(($colW*1.5) - ($pdf->GetStringWidth($header)/2) );		
+	$pdf->SetX(($style["headerW"]) - ($pdf->GetStringWidth($header)/2) );		
 	$pdf->Cell(0, 10, $header, 0, 1);	
-	$pdf->Rect(15, 10, $pageW, 0);	
+	$pdf->Rect(15, 10, $style["pageW"], 0);	
 
 	if ($clearBlocksDisplayed) {
 		$blocksDisplayed = 0;
@@ -115,7 +115,7 @@ function addPagesFromPDF($pdfName, $numOfPages, $startingPage = 1) {
      }
 }
 
-function printIndex($index, $firstName, $secondName, $title, $enforceUnique = false) {
+function printIndex($index, $style, $firstName, $secondName, $title, $enforceUnique = false) {
     global $pdf;
 
 	foreach ($index as $key => $row) {
@@ -141,7 +141,7 @@ function printIndex($index, $firstName, $secondName, $title, $enforceUnique = fa
 		$index = $uniqueIndex;
     }
 
-    newPage($title);
+    newPage($title, $style);
     $pdf->TOC_Entry($title, 0);
 
     
@@ -171,21 +171,22 @@ function printIndex($index, $firstName, $secondName, $title, $enforceUnique = fa
 
             if ($currentX > 160) {
             	$currentX = 0;
-            	newPage($title);
+            	newPage($title, $style);
             }
 	    }
     }
 }
 
-function printTimeStamp() {
-    global $pdf, $font, $fontSize, $colW;
+function printTimeStamp($pdf, $style) {
+    $timeStampX = 80;
+    $timeStampY = 250;
 
-	$pdf->SetFont($font,'',$fontSize+2);
-	$pdf->SetY(250);
-	$pdf->SetX(80);
+	$pdf->SetFont($style["stdFont"], '' , $style["stdFontSize"]+2);
+	$pdf->SetY($timeStampY);
+	$pdf->SetX($timeStampX);
     date_default_timezone_set('UTC');		
-    $pdf->Cell($colW, 5, "Updated: " . date("F j, Y, g:i a") . " UTC", 0, 1);	
-	$pdf->SetFont($font,'',$fontSize);	
+    $pdf->Cell($style["colW"], 5, "Updated: " . date("F j, Y, g:i a") . " UTC", 0, 1);	
+	$pdf->SetFont($style["stdFont"], '' , $style["stdFontSize"]);	
 }
 
 ?>
