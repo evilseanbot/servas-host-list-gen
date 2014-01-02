@@ -2,8 +2,7 @@
 function printHostEntry($hostRow, $style, $peopleByPersonId) {
     global $firstEntry, $pdf, $oldStateOrRegion, $oldState, $blocksDisplayed, $peopleIndex, 
     $cityIndex, $currentColX, $peopleByRelateId, $blockOriginY;
-
-	
+    	
 	if (!is_null($hostRow["regionname"])) {
 	    $stateOrRegion = $hostRow["regionname"] . " (" . $hostRow["State"] . ")";
 	} else {
@@ -11,6 +10,7 @@ function printHostEntry($hostRow, $style, $peopleByPersonId) {
 	}
 	
     $state = $hostRow["state_full_name"];
+
 	
 	$newStateOrRegion = $stateOrRegion;
 	$newState = $state;
@@ -21,6 +21,8 @@ function printHostEntry($hostRow, $style, $peopleByPersonId) {
 		$firstEntry = false;
 		$pdf->TOC_Entry("Host List", 0);
 	}
+
+    
 	
 	if (($newStateOrRegion != $oldStateOrRegion) && ($blocksDisplayed != 0)){
 	    newPage($stateOrRegion, $style, true);
@@ -31,11 +33,19 @@ function printHostEntry($hostRow, $style, $peopleByPersonId) {
 		$pdf->TOC_Entry($newState, 1);	
 	}
 	
+
+    // echo "Test6";
+
+
 	if ($newStateOrRegion != $oldStateOrRegion) {
 		if (!is_null($hostRow["regionname"])) {
     		$pdf->TOC_Entry($newStateOrRegion, 2);
 		}
 	}
+
+	// echo "Test7";
+
+	
 
 	   // Count up blocks displayed
     if ($blocksDisplayed == 3) {	
@@ -44,10 +54,18 @@ function printHostEntry($hostRow, $style, $peopleByPersonId) {
 	newBlock($style);
 	$blocksDisplayed++;
 	
+
+
+    //echo "Test8";
+
+    
+
 	$peopleIndex = addEntryToIndex($peopleIndex, $hostRow, "FirstName", "LastName");
 	$cityIndex = addEntryToIndex($cityIndex, $hostRow, "City", "State");
 	
+
     printHostEntryCol1($hostRow, $style);
+    
     printHostEntryCol2($hostRow, $style, $peopleByPersonId);
     printHostEntryCol3($hostRow, $style);
 	printHostEntryBottomCol($hostRow, $style);
@@ -63,7 +81,7 @@ function printHostEntryCol1($hostRow, $style) {
     $mappedSymbols = array("SleepingBagId" => array("2" => "SBA ", "3" => "SBN "),
                            "SmokingId" => array("1" => "HSI ", "2" => "SOK ", "3" => "NIS ", "4" => "NSA "),
                            "WantsTravelers" => array("t" => "WMT "),
-                           "HostTypeId" => array("1" => "2n", "2" => "1d", "3" => "NOT HOSTING"),
+                           "HostTypeId" => array("1" => "2 Night Host", "2" => "Day Host", "3" => "NOT HOSTING"),
                            "FamiliesWelcome" => array("t" => "(FAM)"),                           
     	             );
 

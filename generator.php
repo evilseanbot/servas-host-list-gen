@@ -29,13 +29,8 @@ $peopleByRelateId = sortedArrayFromSQL("peopleQuery.sql", "r_person_id");
 
 $pdf = new PDF_TOC();
 
-$pdf->_toc[] = array("t" => "United States Map", "l" => 0, "p" => 7);
-$pdf->_toc[] = array("t" => "United States Servas, Inc. Board and Staff", "l" => 0, "p" => 8);
-$pdf->_toc[] = array("t" => "Responsibilites of Servas Travelers", "l" => 0, "p" => 9);
-$pdf->_toc[] = array("t" => "Guide to reading the Host List", "l" => 0, "p" => 12);
-$pdf->_toc[] = array("t" => "Language Code Abbreviations", "l" => 0, "p" => 14);
-$pdf->_toc[] = array("t" => "Country Code Abbreviations", "l" => 0, "p" => 16);
-$pdf->_toc[] = array("t" => "Miscellaneous Abbreviations", "l" => 0, "p" => 17);
+addHostListTOCEntries($pdf);
+
 
 $TOCPages = 2;
 
@@ -59,13 +54,7 @@ $peopleIndex = array();
 $cityIndex = array();
 $pdf->SetFont($style["stdFont"],'',$style["stdFontSize"]);
 
-addPagesFromPDF('HostListFront.pdf', 1);
-printTimeStamp($pdf, $style);
-addPagesFromPDF('HostListFront.pdf', 8, 2);
-addPagesFromPDF('Guide for reading the Host List.pdf', 2);
-addPagesFromPDF('Language Code Abbreviations.pdf', 2);
-addPagesFromPDF('Country Code Abbreviations.pdf', 1);
-addPagesFromPDF('HostListFront.pdf', 1, 10);
+addHostListFrontPages($pdf, $style);
 
 printKeyPeople();
 $pdf->startPageNums();
@@ -76,9 +65,13 @@ for ($i = 0; $hostRow = pg_fetch_array($hostResult); $i++) {
     printHostEntry($hostRow, $style, $peopleByPersonId);
 }
 
+
+//echo "test11";
+
 printIndex($peopleIndex, $style, "LastName", "FirstName", "Index By Host Name");
 printIndex($cityIndex, $style, "City", "State", "Index by City Name", true);
 
 $pdf->insertTOC(5, 24, 12);
+//echo "test12";
 $pdf->Output();
 ?>

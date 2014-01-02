@@ -189,4 +189,24 @@ function printTimeStamp($pdf, $style) {
 	$pdf->SetFont($style["stdFont"], '' , $style["stdFontSize"]);	
 }
 
+function addHostListTOCentries ($pdf) {
+	$pdf->_toc[] = array("t" => "United States Map", "l" => 0, "p" => 7);
+	$pdf->_toc[] = array("t" => "United States Servas, Inc. Board and Staff", "l" => 0, "p" => 8);
+	$pdf->_toc[] = array("t" => "Responsibilites of Servas Travelers", "l" => 0, "p" => 9);
+	$pdf->_toc[] = array("t" => "Guide to reading the Host List", "l" => 0, "p" => 12);
+	$pdf->_toc[] = array("t" => "Language Code Abbreviations", "l" => 0, "p" => 14);
+	$pdf->_toc[] = array("t" => "Country Code Abbreviations", "l" => 0, "p" => 16);
+	$pdf->_toc[] = array("t" => "Miscellaneous Abbreviations", "l" => 0, "p" => 17);	
+}
+
+
+function addHostListFrontPages($pdf, $style) {
+	addPagesFromPDF('HostListFront.pdf', 1);
+	printTimeStamp($pdf, $style);
+	addPagesFromPDF('HostListFront.pdf', 8, 2);
+	addPagesFromPDF('Guide for reading the Host List.pdf', 2);
+	addPagesFromPDF('Language Code Abbreviations.pdf', 2);
+	addPagesFromPDF('Country Code Abbreviations.pdf', 1);
+	addPagesFromPDF('HostListFront.pdf', 1, 10);	
+}
 ?>
