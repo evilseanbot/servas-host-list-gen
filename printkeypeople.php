@@ -1,8 +1,8 @@
 <?php
 function printKeyPeople() {
     global $pdf, $font, $fontSize, $emailsById, $phonesById;
-
-    newPage("Interviewers");
+    $style = array("colW" => 70, "bottomColW" => 199, "headerW" => 105, "blockH" => 300, "pageW" => 170, "stdFontSize" => 10, "stdFont" => "Times");
+    newPage("Interviewers", $style);
 	$pdf->startPageNums();
     $pdf->TOC_Entry("Interviewer list", 0);
 	
@@ -42,7 +42,7 @@ ORDER BY
 	
     for ($i = 0; $personRow = pg_fetch_array($keyPeopleResult); $i++) {	
 	    if ($linesOnPage > 50) {
-			newPage("Interviewers");
+			newPage("Interviewers", $style);
 			$linesOnPage = 0;
 		}
 	
